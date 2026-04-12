@@ -9,55 +9,63 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState('')
   const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setMessage('')
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
     if (error) {
-      alert(error.message)
+      setMessage(error.message)
+      setLoading(false)
     } else {
       router.push('/dashboard')
     }
-    setLoading(false)
   }
 
   return (
-    <div className="min-h-screen bg-[#050508] px-6 py-10 text-white sm:px-10">
-      <div className="mx-auto max-w-md rounded-[32px] border border-white/10 bg-white/5 p-8 shadow-[0_32px_120px_-80px_rgba(15,23,42,0.8)] backdrop-blur sm:p-10">
+    <div className="min-h-screen quiet-app-shell px-6 py-10 sm:px-10">
+      <div className="mx-auto max-w-md rounded-[32px] quiet-panel p-8 shadow-[0_32px_120px_-80px_rgba(15,23,42,0.8)] backdrop-blur sm:p-10">
         <div className="space-y-3">
-          <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Quiet Mode</p>
-          <h1 className="text-3xl font-semibold text-white">Log in to your account</h1>
-          <p className="text-sm leading-6 text-slate-400">
+          <p className="text-sm uppercase tracking-[0.3em] quiet-text-secondary">Quiet Mode</p>
+          <h1 className="text-3xl font-semibold quiet-text-primary">Log in to your account</h1>
+          <p className="text-sm leading-6 quiet-text-secondary">
             Sign in and step into a calm space for bedtime and morning routines.
           </p>
         </div>
 
+        {message && (
+          <div className="mt-6 rounded-2xl border border-red-500/20 bg-red-500/10 p-4">
+            <p className="text-sm text-red-400">{message}</p>
+          </div>
+        )}
+
         <form onSubmit={handleLogin} className="mt-8 space-y-5">
           <label className="block">
-            <span className="text-sm text-slate-300">Email</span>
+            <span className="text-sm quiet-text-secondary">Email</span>
             <input
               type="email"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-2 w-full rounded-2xl border border-slate-800/90 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-400/20"
+              className="quiet-input mt-2"
               required
             />
           </label>
           <label className="block">
-            <span className="text-sm text-slate-300">Password</span>
+            <span className="text-sm quiet-text-secondary">Password</span>
             <input
               type="password"
               placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 w-full rounded-2xl border border-slate-800/90 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-400/20"
+              className="quiet-input mt-2"
               required
             />
           </label>
@@ -65,15 +73,15 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-full quiet-primary-cta px-4 py-3 text-sm font-semibold transition hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? 'Logging in...' : 'Log In'}
           </button>
         </form>
 
-        <div className="mt-6 border-t border-white/10 pt-6 text-center text-sm text-slate-400">
+        <div className="mt-6 border-t border-white/10 pt-6 text-center text-sm quiet-text-secondary">
           New to Quiet Mode?{' '}
-          <Link href="/signup" className="font-medium text-white hover:text-slate-100">
+          <Link href="/signup" className="font-medium quiet-text-primary hover:text-white">
             Create an account
           </Link>
         </div>

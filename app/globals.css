@@ -1,13 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --background: #050508;
-  --foreground: #f5f5f7;
+  --quiet-background: #050508;
+  --quiet-surface: rgba(255, 255, 255, 0.05);
+  --quiet-surface-raised: rgba(255, 255, 255, 0.08);
+  --quiet-foreground: #F4F1E7;
+  --quiet-secondary-text: #9FA7B6;
+  --quiet-border: rgba(148, 163, 184, 0.18);
+  --quiet-primary: #B7A97C;
+  --quiet-primary-hover: #A39162;
+  --quiet-primary-text: #171A1E;
+  --quiet-secondary-surface: #111720;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--quiet-background);
+  --color-foreground: var(--quiet-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -18,8 +26,8 @@ body {
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--quiet-background);
+  color: var(--quiet-foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
@@ -33,6 +41,102 @@ a {
 }
 
 ::selection {
-  background: rgba(148, 163, 184, 0.3);
+  background: rgba(183, 169, 124, 0.24);
   color: #ffffff;
+}
+
+.quiet-app-shell {
+  background: var(--quiet-background);
+  color: var(--quiet-foreground);
+}
+
+.quiet-panel {
+  background: var(--quiet-surface);
+  border: 1px solid var(--quiet-border);
+}
+
+.quiet-panel-raised {
+  background: var(--quiet-surface-raised);
+  border: 1px solid var(--quiet-border);
+}
+
+.quiet-pill {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: var(--quiet-secondary-text);
+}
+
+.quiet-text-secondary {
+  color: var(--quiet-secondary-text);
+}
+
+.quiet-text-primary {
+  color: var(--quiet-foreground);
+}
+
+.quiet-primary-cta {
+  background-color: var(--quiet-primary);
+  color: var(--quiet-primary-text);
+  border: 1px solid transparent;
+}
+
+.quiet-primary-cta:hover {
+  background-color: var(--quiet-primary-hover);
+}
+
+.quiet-secondary-btn {
+  background: var(--quiet-secondary-surface);
+  color: var(--quiet-secondary-text);
+  border: 1px solid var(--quiet-border);
+}
+
+.quiet-secondary-btn:hover {
+  background: var(--quiet-surface-raised);
+}
+
+/* Inner card — nested sub-cards within a quiet-panel */
+.quiet-inner-card {
+  background: rgba(10, 14, 22, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 1.5rem;
+}
+
+/* Form inputs */
+.quiet-input {
+  width: 100%;
+  border-radius: 0.875rem;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(10, 14, 22, 0.8);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--quiet-foreground);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.quiet-input:focus {
+  border-color: rgba(183, 169, 124, 0.5);
+  box-shadow: 0 0 0 3px rgba(183, 169, 124, 0.08);
+}
+
+.quiet-input::placeholder {
+  color: rgba(159, 167, 182, 0.45);
+}
+
+/* Active filter pill (history page filters) */
+.quiet-filter-active {
+  background: rgba(183, 169, 124, 0.12);
+  color: var(--quiet-primary);
+  border: 1px solid rgba(183, 169, 124, 0.22);
+}
+
+/* Type badges */
+.quiet-badge-morning {
+  background: rgba(183, 169, 124, 0.12);
+  color: var(--quiet-primary);
+}
+
+.quiet-badge-night {
+  background: rgba(148, 163, 184, 0.1);
+  color: var(--quiet-secondary-text);
 }

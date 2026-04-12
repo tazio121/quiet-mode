@@ -114,19 +114,19 @@ export default async function HistoryPage({
       : history.filter((item) => item.type === filter)
 
   return (
-    <div className="min-h-screen bg-[#050508] text-white">
+    <div className="min-h-screen quiet-app-shell">
       <main className="mx-auto max-w-5xl px-6 py-10 sm:px-10">
         <a
           href="/dashboard"
-          className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-300 transition hover:text-white"
+          className="mb-6 inline-flex items-center gap-2 text-sm font-medium quiet-text-secondary transition hover:text-white"
         >
           ← Back to Dashboard
         </a>
 
         <header className="mb-8">
-          <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Quiet Mode</p>
-          <h1 className="mt-3 text-3xl font-semibold text-white">Your Reset History</h1>
-          <p className="mt-2 text-sm leading-6 text-slate-400">
+          <p className="text-sm uppercase tracking-[0.3em] quiet-text-secondary">Quiet Mode</p>
+          <h1 className="mt-3 text-3xl font-semibold quiet-text-primary">Your Reset History</h1>
+          <p className="mt-2 text-sm leading-6 quiet-text-secondary">
             Review your past morning and night resets to track your progress.
           </p>
         </header>
@@ -138,15 +138,15 @@ export default async function HistoryPage({
         </div>
 
         {filteredHistory.length === 0 ? (
-          <div className="rounded-[32px] border border-white/10 bg-white/5 p-12 text-center backdrop-blur">
-            <p className="text-lg font-medium text-white">
+          <div className="rounded-[32px] quiet-panel p-12 text-center backdrop-blur">
+            <p className="text-lg font-medium quiet-text-primary">
               {filter === 'all'
                 ? 'No resets yet'
                 : filter === 'morning'
                   ? 'No morning resets found'
                   : 'No night resets found'}
             </p>
-            <p className="mt-2 text-sm text-slate-400">
+            <p className="mt-2 text-sm quiet-text-secondary">
               {filter === 'all'
                 ? 'Start your first reset to see your history here.'
                 : 'Try a different filter or add a new reset to see it here.'}
@@ -170,8 +170,8 @@ function FilterButton({ href, active, children }: { href: string; active: boolea
       href={href}
       className={`inline-flex items-center rounded-full px-4 py-2 text-sm font-medium transition ${
         active
-          ? 'bg-white/10 text-white'
-          : 'text-slate-400 hover:bg-white/5 hover:text-white'
+          ? 'quiet-filter-active'
+          : 'quiet-text-secondary hover:bg-white/5 hover:text-white'
       }`}
     >
       {children}
@@ -193,24 +193,22 @@ function HistoryCard({ item }: { item: HistoryItem }) {
     : item.raw_input
 
   return (
-    <div className="rounded-[32px] border border-white/10 bg-white/5 p-6 backdrop-blur">
+    <div className="rounded-[32px] quiet-panel p-6 backdrop-blur">
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
-              item.type === 'morning'
-                ? 'bg-amber-500/20 text-amber-300'
-                : 'bg-indigo-500/20 text-indigo-300'
+              item.type === 'morning' ? 'quiet-badge-morning' : 'quiet-badge-night'
             }`}>
               {item.type === 'morning' ? 'Morning Reset' : 'Night Reset'}
             </span>
-            <span className="text-sm text-slate-400">{date}</span>
+            <span className="text-sm quiet-text-secondary">{date}</span>
           </div>
-          <p className="mt-3 text-sm text-slate-300">
-            <span className="font-medium text-white">Mood:</span> {item.mood}
+          <p className="mt-3 text-sm quiet-text-secondary">
+            <span className="font-medium quiet-text-primary">Mood:</span> {item.mood}
           </p>
-          <p className="mt-2 text-sm text-slate-300">
-            <span className="font-medium text-white">Your input:</span> {previewInput}
+          <p className="mt-2 text-sm quiet-text-secondary">
+            <span className="font-medium quiet-text-primary">Your input:</span> {previewInput}
           </p>
         </div>
       </div>
@@ -218,34 +216,34 @@ function HistoryCard({ item }: { item: HistoryItem }) {
       {item.summary && (
         <div className="mt-6 space-y-4">
           <div>
-            <h3 className="text-sm font-medium text-white">Summary</h3>
-            <p className="mt-1 text-sm text-slate-300">{item.summary}</p>
+            <h3 className="text-sm font-medium quiet-text-primary">Summary</h3>
+            <p className="mt-1 text-sm quiet-text-secondary">{item.summary}</p>
           </div>
 
           {item.type === 'morning' ? (
             <>
               {item.main_focus && (
                 <div>
-                  <h3 className="text-sm font-medium text-white">Main Focus</h3>
-                  <p className="mt-1 text-sm text-slate-300">{item.main_focus}</p>
+                  <h3 className="text-sm font-medium quiet-text-primary">Main Focus</h3>
+                  <p className="mt-1 text-sm quiet-text-secondary">{item.main_focus}</p>
                 </div>
               )}
               {item.avoid_text && (
                 <div>
-                  <h3 className="text-sm font-medium text-white">What to Avoid</h3>
-                  <p className="mt-1 text-sm text-slate-300">{item.avoid_text}</p>
+                  <h3 className="text-sm font-medium quiet-text-primary">What to Avoid</h3>
+                  <p className="mt-1 text-sm quiet-text-secondary">{item.avoid_text}</p>
                 </div>
               )}
               {item.calming_message && (
                 <div>
-                  <h3 className="text-sm font-medium text-white">Calming Message</h3>
-                  <p className="mt-1 text-sm text-slate-300">{item.calming_message}</p>
+                  <h3 className="text-sm font-medium quiet-text-primary">Calming Message</h3>
+                  <p className="mt-1 text-sm quiet-text-secondary">{item.calming_message}</p>
                 </div>
               )}
               {item.next_action && (
                 <div>
-                  <h3 className="text-sm font-medium text-white">Next Action</h3>
-                  <p className="mt-1 text-sm text-slate-300">{item.next_action}</p>
+                  <h3 className="text-sm font-medium quiet-text-primary">Next Action</h3>
+                  <p className="mt-1 text-sm quiet-text-secondary">{item.next_action}</p>
                 </div>
               )}
             </>
@@ -253,26 +251,26 @@ function HistoryCard({ item }: { item: HistoryItem }) {
             <>
               {item.tomorrow_list && (
                 <div>
-                  <h3 className="text-sm font-medium text-white">Tomorrow&apos;s Focus</h3>
-                  <p className="mt-1 text-sm text-slate-300">{item.tomorrow_list}</p>
+                  <h3 className="text-sm font-medium quiet-text-primary">Tomorrow&apos;s Focus</h3>
+                  <p className="mt-1 text-sm quiet-text-secondary">{item.tomorrow_list}</p>
                 </div>
               )}
               {item.let_go_tonight && (
                 <div>
-                  <h3 className="text-sm font-medium text-white">Let Go Tonight</h3>
-                  <p className="mt-1 text-sm text-slate-300">{item.let_go_tonight}</p>
+                  <h3 className="text-sm font-medium quiet-text-primary">Let Go Tonight</h3>
+                  <p className="mt-1 text-sm quiet-text-secondary">{item.let_go_tonight}</p>
                 </div>
               )}
               {item.calming_message && (
                 <div>
-                  <h3 className="text-sm font-medium text-white">Calming Message</h3>
-                  <p className="mt-1 text-sm text-slate-300">{item.calming_message}</p>
+                  <h3 className="text-sm font-medium quiet-text-primary">Calming Message</h3>
+                  <p className="mt-1 text-sm quiet-text-secondary">{item.calming_message}</p>
                 </div>
               )}
               {item.closure_suggestion && (
                 <div>
-                  <h3 className="text-sm font-medium text-white">Closure Suggestion</h3>
-                  <p className="mt-1 text-sm text-slate-300">{item.closure_suggestion}</p>
+                  <h3 className="text-sm font-medium quiet-text-primary">Closure Suggestion</h3>
+                  <p className="mt-1 text-sm quiet-text-secondary">{item.closure_suggestion}</p>
                 </div>
               )}
             </>
