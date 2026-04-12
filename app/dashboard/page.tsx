@@ -50,6 +50,12 @@ export default function Dashboard() {
               <div className="rounded-3xl border border-slate-800/80 bg-slate-950/70 p-4">
                 <p className="font-medium text-white">Morning calm</p>
                 <p className="mt-2 text-slate-400">A gentle way to begin the day without rush or overwhelm.</p>
+                <button
+                  onClick={() => router.push('/reset/morning')}
+                  className="mt-4 inline-flex items-center justify-center rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
+                >
+                  Start Morning Reset
+                </button>
               </div>
             </div>
           </section>
