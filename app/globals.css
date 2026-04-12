@@ -94,6 +94,16 @@ a {
   background: var(--quiet-surface-raised);
 }
 
+.quiet-back-link {
+  font-size: 0.75rem;
+  color: var(--quiet-secondary-text);
+  transition: color 0.2s ease;
+}
+
+.quiet-back-link:hover {
+  color: var(--quiet-foreground);
+}
+
 /* Inner card — nested sub-cards within a quiet-panel */
 .quiet-inner-card {
   background: rgba(10, 14, 22, 0.7);
@@ -134,6 +144,19 @@ textarea.quiet-input {
   background: rgba(183, 169, 124, 0.12);
   color: var(--quiet-primary);
   border: 1px solid rgba(183, 169, 124, 0.22);
+}
+
+/* Interactive inner card — for Link/button wrappers */
+.quiet-inner-card-link {
+  background: rgba(10, 14, 22, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 1.5rem;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.quiet-inner-card-link:hover {
+  background: rgba(18, 26, 40, 0.85);
+  border-color: rgba(183, 169, 124, 0.18);
 }
 
 /* Type badges */

@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { Logo } from '@/components/Logo'
 
 type NightResetResult = {
   summary: string
@@ -61,12 +60,18 @@ export default function NightReset() {
       <div className="min-h-screen quiet-app-shell">
         <main className="mx-auto max-w-2xl px-6 py-10 sm:px-10">
           <div className="rounded-[32px] quiet-panel p-6 backdrop-blur sm:p-8">
-            <Logo size="sm" className="mb-8" />
-
-            <div className="mb-8 flex items-center gap-3">
-              <span className="quiet-badge-night inline-flex items-center rounded-full px-3 py-1 text-xs font-medium">
-                Night Reset
-              </span>
+            <div className="mb-8">
+              <div className="flex items-start justify-between mb-3">
+                <span className="quiet-badge-night inline-flex items-center rounded-full px-3 py-1 text-xs font-medium">
+                  Night Reset
+                </span>
+                <button
+                  onClick={() => router.push('/dashboard')}
+                  className="quiet-back-link"
+                >
+                  ← Back to Dashboard
+                </button>
+              </div>
               <h1 className="text-xl font-semibold quiet-text-primary">Your reset is ready</h1>
             </div>
 
@@ -88,13 +93,6 @@ export default function NightReset() {
                 </div>
               ))}
             </div>
-
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="mt-8 inline-flex items-center justify-center rounded-full quiet-primary-cta px-5 py-3 text-sm font-semibold transition"
-            >
-              Back to Dashboard
-            </button>
           </div>
         </main>
       </div>
@@ -105,13 +103,19 @@ export default function NightReset() {
     <div className="min-h-screen quiet-app-shell">
       <main className="mx-auto max-w-2xl px-6 py-10 sm:px-10">
         <div className="rounded-[32px] quiet-panel p-6 backdrop-blur sm:p-8">
-          <Logo size="sm" className="mb-8" />
-
           <div className="mb-8">
-            <span className="quiet-badge-night inline-flex items-center rounded-full px-3 py-1 text-xs font-medium mb-3">
-              Night Reset
-            </span>
-            <h1 className="mt-3 text-2xl font-semibold quiet-text-primary">Quiet your mind</h1>
+            <div className="flex items-start justify-between mb-4">
+              <span className="quiet-badge-night inline-flex items-center rounded-full px-3 py-1 text-xs font-medium">
+                Night Reset
+              </span>
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="quiet-back-link"
+              >
+                ← Back to Dashboard
+              </button>
+            </div>
+            <h1 className="text-2xl font-semibold quiet-text-primary">Quiet your mind</h1>
             <p className="mt-2 text-sm leading-6 quiet-text-secondary">
               Let the day go. Your reset will help you settle before sleep.
             </p>
