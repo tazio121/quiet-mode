@@ -4,18 +4,18 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
-type MorningResetResult = {
+type NightResetResult = {
   summary: string
-  main_focus: string
-  avoid_text: string
+  tomorrow_list: string
+  let_go_tonight: string
   calming_message: string
-  next_action: string
+  closure_suggestion: string
 }
 
-export default function MorningReset() {
+export default function NightReset() {
   const [mood, setMood] = useState('')
   const [rawInput, setRawInput] = useState('')
-  const [result, setResult] = useState<MorningResetResult | null>(null)
+  const [result, setResult] = useState<NightResetResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
@@ -41,7 +41,7 @@ export default function MorningReset() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        type: 'morning',
+        type: 'night',
         mood,
         raw_input: rawInput,
       }),
@@ -50,7 +50,7 @@ export default function MorningReset() {
     const body = await response.json()
 
     if (!response.ok) {
-      setError(body?.error || 'Unable to generate your morning reset. Please try again.')
+      setError(body?.error || 'Unable to generate your night reset. Please try again.')
       setLoading(false)
       return
     }
@@ -64,7 +64,7 @@ export default function MorningReset() {
       <div className="min-h-screen bg-[#050508] text-white">
         <main className="mx-auto max-w-2xl px-6 py-10 sm:px-10">
           <div className="rounded-[32px] border border-white/10 bg-white/5 p-6 backdrop-blur">
-            <h1 className="text-2xl font-semibold text-white mb-6">Your Morning Reset</h1>
+            <h1 className="text-2xl font-semibold text-white mb-6">Your Night Reset</h1>
 
             <div className="space-y-6">
               <div>
@@ -73,13 +73,13 @@ export default function MorningReset() {
               </div>
 
               <div>
-                <h2 className="text-lg font-medium text-white">Main Focus</h2>
-                <p className="mt-2 text-slate-300">{result.main_focus}</p>
+                <h2 className="text-lg font-medium text-white">Tomorrow List</h2>
+                <p className="mt-2 text-slate-300 whitespace-pre-line">{result.tomorrow_list}</p>
               </div>
 
               <div>
-                <h2 className="text-lg font-medium text-white">Avoid</h2>
-                <p className="mt-2 text-slate-300">{result.avoid_text}</p>
+                <h2 className="text-lg font-medium text-white">Let Go Tonight</h2>
+                <p className="mt-2 text-slate-300">{result.let_go_tonight}</p>
               </div>
 
               <div>
@@ -88,8 +88,8 @@ export default function MorningReset() {
               </div>
 
               <div>
-                <h2 className="text-lg font-medium text-white">Next Action</h2>
-                <p className="mt-2 text-slate-300">{result.next_action}</p>
+                <h2 className="text-lg font-medium text-white">Closure Suggestion</h2>
+                <p className="mt-2 text-slate-300">{result.closure_suggestion}</p>
               </div>
             </div>
 
@@ -109,13 +109,13 @@ export default function MorningReset() {
     <div className="min-h-screen bg-[#050508] text-white">
       <main className="mx-auto max-w-2xl px-6 py-10 sm:px-10">
         <div className="rounded-[32px] border border-white/10 bg-white/5 p-6 backdrop-blur">
-          <h1 className="text-2xl font-semibold text-white mb-6">Morning Reset</h1>
+          <h1 className="text-2xl font-semibold text-white mb-6">Night Reset</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-white mb-2">How are you feeling this morning?</label>
+              <label className="block text-sm font-medium text-white mb-2">How are you feeling tonight?</label>
               <div className="space-y-2">
-                {['Calm', 'Anxious', 'Excited', 'Tired', 'Focused', 'Overwhelmed'].map((moodOption) => (
+                {['Calm', 'Restless', 'Stressed', 'Anxious', 'Drained', 'Grateful'].map((moodOption) => (
                   <label key={moodOption} className="flex items-center">
                     <input
                       type="radio"
@@ -133,7 +133,7 @@ export default function MorningReset() {
 
             <div>
               <label htmlFor="rawInput" className="block text-sm font-medium text-white mb-2">
-                What's on your mind this morning?
+                What's on your mind tonight?
               </label>
               <textarea
                 id="rawInput"

@@ -46,6 +46,12 @@ export default function Dashboard() {
               <div className="rounded-3xl border border-slate-800/80 bg-slate-950/70 p-4">
                 <p className="font-medium text-white">Evening reset</p>
                 <p className="mt-2 text-slate-400">A quiet routine that helps your mind settle before sleep.</p>
+                <button
+                  onClick={() => router.push('/reset/night')}
+                  className="mt-4 inline-flex items-center justify-center rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
+                >
+                  Start Night Reset
+                </button>
               </div>
               <div className="rounded-3xl border border-slate-800/80 bg-slate-950/70 p-4">
                 <p className="font-medium text-white">Morning calm</p>
@@ -55,6 +61,16 @@ export default function Dashboard() {
                   className="mt-4 inline-flex items-center justify-center rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
                 >
                   Start Morning Reset
+                </button>
+              </div>
+              <div className="rounded-3xl border border-slate-800/80 bg-slate-950/70 p-4">
+                <p className="font-medium text-white">Review & reflect</p>
+                <p className="mt-2 text-slate-400">Look back at your reset history and track your progress.</p>
+                <button
+                  onClick={() => router.push('/history')}
+                  className="mt-4 inline-flex items-center justify-center rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
+                >
+                  View History
                 </button>
               </div>
             </div>
