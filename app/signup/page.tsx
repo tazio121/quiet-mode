@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { Logo } from '@/components/Logo'
 
 export default function Signup() {
   const [email, setEmail] = useState('')
@@ -47,7 +48,7 @@ export default function Signup() {
       <div className="min-h-screen quiet-app-shell px-6 py-10 sm:px-10">
         <div className="mx-auto max-w-md rounded-[32px] quiet-panel p-8 shadow-[0_32px_120px_-80px_rgba(15,23,42,0.8)] backdrop-blur sm:p-10">
           <div className="space-y-3">
-            <p className="text-sm uppercase tracking-[0.3em] quiet-text-secondary">Quiet Mode</p>
+            <Logo size="sm" className="mb-5" />
             <h1 className="text-3xl font-semibold quiet-text-primary">Check your email</h1>
             <p className="text-sm leading-6 quiet-text-secondary">
               {message}
@@ -70,7 +71,7 @@ export default function Signup() {
     <div className="min-h-screen quiet-app-shell px-6 py-10 sm:px-10">
       <div className="mx-auto max-w-md rounded-[32px] quiet-panel p-8 shadow-[0_32px_120px_-80px_rgba(15,23,42,0.8)] backdrop-blur sm:p-10">
         <div className="space-y-3">
-          <p className="text-sm uppercase tracking-[0.3em] quiet-text-secondary">Quiet Mode</p>
+          <Logo size="sm" className="mb-5" />
           <h1 className="text-3xl font-semibold quiet-text-primary">Create your account</h1>
           <p className="text-sm leading-6 quiet-text-secondary">
             Join Quiet Mode and begin building a calmer routine for sleep, focus, and recovery.

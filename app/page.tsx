@@ -1,13 +1,12 @@
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 
 export default function Home() {
   return (
     <div className="min-h-screen quiet-app-shell">
       <main className="mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-6 py-16 sm:px-10">
         <div className="flex flex-col gap-12">
-          <div className="inline-flex items-center gap-2 rounded-full quiet-pill px-4 py-2 text-sm">
-            Quiet Mode
-          </div>
+          <Logo size="lg" />
 
           <div className="max-w-3xl space-y-6">
             <p className="text-sm uppercase tracking-[0.3em] quiet-text-secondary">

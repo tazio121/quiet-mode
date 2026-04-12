@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" fill="#050508" rx="7"/>
+  <rect x="9.5" y="12" width="13" height="1" fill="#B7A97C"/>
+  <text
+    x="16"
+    y="22.5"
+    font-family="system-ui, -apple-system, Arial, sans-serif"
+    font-size="7"
+    font-weight="300"
+    letter-spacing="1.2"
+    text-anchor="middle"
+    fill="#F4F1E7"
+  >QM</text>
+</svg>

@@ -123,6 +123,12 @@ a {
   color: rgba(159, 167, 182, 0.45);
 }
 
+textarea.quiet-input {
+  resize: none;
+  min-height: 7rem;
+  line-height: 1.6;
+}
+
 /* Active filter pill (history page filters) */
 .quiet-filter-active {
   background: rgba(183, 169, 124, 0.12);

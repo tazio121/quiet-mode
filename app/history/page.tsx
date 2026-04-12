@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { Logo } from '@/components/Logo'
 
 type HistoryItem = {
   check_in_id: string
@@ -124,8 +125,8 @@ export default async function HistoryPage({
         </a>
 
         <header className="mb-8">
-          <p className="text-sm uppercase tracking-[0.3em] quiet-text-secondary">Quiet Mode</p>
-          <h1 className="mt-3 text-3xl font-semibold quiet-text-primary">Your Reset History</h1>
+          <Logo size="sm" className="mb-4" />
+          <h1 className="text-3xl font-semibold quiet-text-primary">Your Reset History</h1>
           <p className="mt-2 text-sm leading-6 quiet-text-secondary">
             Review your past morning and night resets to track your progress.
           </p>

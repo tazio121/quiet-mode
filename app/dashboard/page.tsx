@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { Logo } from '@/components/Logo'
 
 export default function Dashboard() {
   const router = useRouter()
@@ -17,8 +18,8 @@ export default function Dashboard() {
       <main className="mx-auto max-w-5xl px-6 py-10 sm:px-10">
         <header className="flex flex-col gap-6 rounded-[32px] quiet-panel p-6 shadow-[0_32px_120px_-80px_rgba(15,23,42,0.8)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.3em] quiet-text-secondary">Quiet Mode</p>
-            <h1 className="mt-3 text-3xl font-semibold quiet-text-primary">Welcome back.</h1>
+            <Logo size="sm" className="mb-4" />
+            <h1 className="text-3xl font-semibold quiet-text-primary">Welcome back.</h1>
             <p className="mt-2 text-sm leading-6 quiet-text-secondary">
               Your calm dashboard is ready. Keep your routine simple and consistent.
             </p>
