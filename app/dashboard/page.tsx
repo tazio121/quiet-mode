@@ -20,6 +20,8 @@ type DashboardData = {
   latestNight: LatestReset | null
   totalResets: number
   weeklyCompletedDays: number
+  streakDays: number
+  streakHasToday: boolean
 }
 
 function getWeekStartUtc(date: Date) {
@@ -27,6 +29,13 @@ function getWeekStartUtc(date: Date) {
   const dayOfWeek = utc.getUTCDay()
   utc.setUTCDate(utc.getUTCDate() - dayOfWeek)
   return utc
+}
+
+function getUtcDayKey(value?: string | Date | null) {
+  const date = value instanceof Date ? value : new Date(value ?? '')
+  if (Number.isNaN(date.getTime())) return null
+
+  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
 }
 
 function countDistinctDays(items: Array<{ created_at?: string | null }>) {
@@ -40,6 +49,41 @@ function countDistinctDays(items: Array<{ created_at?: string | null }>) {
   }
 
   return uniqueDays.size
+}
+
+function getStreakFromHistory(items: Array<{ created_at?: string | null }>) {
+  const uniqueDayKeys = new Set<number>()
+
+  for (const item of items ?? []) {
+    const key = getUtcDayKey(item.created_at)
+    if (key !== null) {
+      uniqueDayKeys.add(key)
+    }
+  }
+
+  if (uniqueDayKeys.size === 0) {
+    return { streakDays: 0, streakHasToday: false }
+  }
+
+  const dayKeys = [...uniqueDayKeys].sort((a, b) => b - a)
+  const mostRecentKey = dayKeys[0]
+  const todayKey = getUtcDayKey(new Date()) ?? 0
+
+  let streakDays = 1
+  let expectedKey = mostRecentKey - 24 * 60 * 60 * 1000
+
+  for (let i = 1; i < dayKeys.length; i += 1) {
+    if (dayKeys[i] !== expectedKey) {
+      break
+    }
+    streakDays += 1
+    expectedKey -= 24 * 60 * 60 * 1000
+  }
+
+  return {
+    streakDays,
+    streakHasToday: mostRecentKey === todayKey,
+  }
 }
 
 async function getDashboardData(userId: string): Promise<DashboardData> {
@@ -63,7 +107,7 @@ async function getDashboardData(userId: string): Promise<DashboardData> {
   const nowIso = now.toISOString()
   const weekStartIso = weekStart.toISOString()
 
-  const [morningResult, nightResult, countResult, weeklyResult] = await Promise.all([
+  const [morningResult, nightResult, countResult, weeklyResult, historyResult] = await Promise.all([
     supabase
       .from('check_ins')
       .select(selectFields)
@@ -93,6 +137,12 @@ async function getDashboardData(userId: string): Promise<DashboardData> {
       .eq('user_id', userId)
       .gte('created_at', weekStartIso)
       .lte('created_at', nowIso),
+
+    supabase
+      .from('check_ins')
+      .select('created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false }),
   ])
 
   function toReset(data: {
@@ -120,11 +170,15 @@ async function getDashboardData(userId: string): Promise<DashboardData> {
     }
   }
 
+  const streakData = getStreakFromHistory(historyResult.data ?? [])
+
   return {
     latestMorning: toReset(morningResult.data),
     latestNight: toReset(nightResult.data),
     totalResets: countResult.count ?? 0,
     weeklyCompletedDays: countDistinctDays(weeklyResult.data ?? []),
+    streakDays: streakData.streakDays,
+    streakHasToday: streakData.streakHasToday,
   }
 }
 
@@ -142,6 +196,42 @@ function getWeeklyProgressText(completedDays: number) {
   }
 
   return "You're showing up for yourself."
+}
+
+function getStreakSupportText(streakDays: number, streakHasToday: boolean) {
+  if (streakDays === 0) {
+    return 'Start your streak today.'
+  }
+
+  if (streakDays === 1 && streakHasToday) {
+    return 'One reset today keeps it going.'
+  }
+
+  if (streakDays === 1) {
+    return 'One reset yesterday. Check in today to keep it going.'
+  }
+
+  if (!streakHasToday) {
+    if (streakDays <= 3) {
+      return "You're building a steady rhythm. Check in today to continue it."
+    }
+
+    if (streakDays <= 6) {
+      return "You're showing up consistently. Check in today to keep it going."
+    }
+
+    return "A strong streak is taking shape. Check in today to keep it going."
+  }
+
+  if (streakDays <= 3) {
+    return "You're building a steady rhythm."
+  }
+
+  if (streakDays <= 6) {
+    return "You're showing up consistently."
+  }
+
+  return 'A strong streak is taking shape.'
 }
 
 export default async function Dashboard() {
@@ -198,7 +288,18 @@ export default async function Dashboard() {
               {getWeeklyProgressText(dashboardData.weeklyCompletedDays)}
             </p>
           </div>
-        </section>
+
+            <div className="mt-4 rounded-[24px] border border-white/10 bg-white/5 p-4">
+              <p className="text-[10px] uppercase tracking-[0.18em] quiet-text-secondary">streak</p>
+              <div className="mt-3 flex items-end gap-3">
+                <span className="text-4xl font-semibold quiet-text-primary">{dashboardData.streakDays}</span>
+                <span className="text-sm uppercase tracking-[0.22em] quiet-text-secondary">day streak</span>
+              </div>
+              <p className="mt-3 text-sm leading-6 quiet-text-secondary">
+                {getStreakSupportText(dashboardData.streakDays, dashboardData.streakHasToday)}
+              </p>
+            </div>
+          </section>
 
         <section className="mt-6 rounded-[32px] quiet-panel p-6 backdrop-blur">
           <p className="mb-4 text-[10px] font-medium uppercase tracking-[0.18em] quiet-text-secondary">
