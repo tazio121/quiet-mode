@@ -15,6 +15,11 @@ type LatestReset = {
   closure_suggestion: string | null
 }
 
+type WeeklyInsightRow = {
+  label: string
+  value: string
+}
+
 type DashboardData = {
   latestMorning: LatestReset | null
   latestNight: LatestReset | null
@@ -22,6 +27,8 @@ type DashboardData = {
   weeklyCompletedDays: number
   streakDays: number
   streakHasToday: boolean
+  weeklyInsightSummary: string
+  weeklyInsightRows: WeeklyInsightRow[]
 }
 
 function getWeekStartUtc(date: Date) {
@@ -86,6 +93,101 @@ function getStreakFromHistory(items: Array<{ created_at?: string | null }>) {
   }
 }
 
+function getMostCommonMood(items: Array<{ type?: string | null; mood?: string | null }>, type: 'morning' | 'night') {
+  const counts = new Map<string, { count: number; firstIndex: number }>()
+  let order = 0
+
+  for (const item of items ?? []) {
+    if (item?.type !== type || !item?.mood) continue
+
+    const mood = item.mood.trim()
+    if (!mood) continue
+
+    const existing = counts.get(mood)
+    if (existing) {
+      existing.count += 1
+    } else {
+      counts.set(mood, { count: 1, firstIndex: order })
+      order += 1
+    }
+  }
+
+  if (counts.size === 0) {
+    return null
+  }
+
+  return [...counts.entries()]
+    .sort((a, b) => {
+      const countDiff = b[1].count - a[1].count
+      if (countDiff !== 0) return countDiff
+      return a[1].firstIndex - b[1].firstIndex
+    })[0][0]
+}
+
+function getCheckInBalanceText(morningCount: number, nightCount: number, total: number) {
+  if (total === 1) {
+    return 'One check-in this week'
+  }
+
+  if (morningCount === nightCount) {
+    return 'Balanced morning & night'
+  }
+
+  return morningCount > nightCount ? 'More morning check-ins' : 'More night check-ins'
+}
+
+function getWeeklyInsightSummary(weeklyItems: Array<{ type?: string | null; mood?: string | null }>) {
+  const totalResets = weeklyItems.length
+  const morningCount = weeklyItems.filter((item) => item?.type === 'morning').length
+  const nightCount = weeklyItems.filter((item) => item?.type === 'night').length
+
+  if (totalResets === 0) {
+    return 'Your insights will appear as you check in this week.'
+  }
+
+  if (morningCount === nightCount) {
+    return totalResets === 1
+      ? 'A small pattern is starting to take shape.'
+      : 'You’re showing up consistently for both ends of the day.'
+  }
+
+  return morningCount > nightCount
+    ? 'Morning check-ins are becoming part of your routine.'
+    : 'Night check-ins are becoming part of your routine.'
+}
+
+function getWeeklyInsightRows(weeklyItems: Array<{ type?: string | null; mood?: string | null }>) {
+  const morningMood = getMostCommonMood(weeklyItems, 'morning')
+  const nightMood = getMostCommonMood(weeklyItems, 'night')
+  const totalResets = weeklyItems.length
+  const morningCount = weeklyItems.filter((item) => item?.type === 'morning').length
+  const nightCount = weeklyItems.filter((item) => item?.type === 'night').length
+
+  const rows: WeeklyInsightRow[] = []
+
+  if (morningMood) {
+    rows.push({ label: 'Most common morning mood', value: morningMood })
+  }
+
+  if (nightMood) {
+    rows.push({ label: 'Most common night mood', value: nightMood })
+  }
+
+  if (totalResets > 0) {
+    rows.push({ label: 'Resets this week', value: String(totalResets) })
+    rows.push({ label: 'Check-in balance', value: getCheckInBalanceText(morningCount, nightCount, totalResets) })
+  }
+
+  if (rows.length === 0) {
+    rows.push({
+      label: 'Your weekly picture is waiting',
+      value: 'Complete a morning or night reset to start building your weekly picture.',
+    })
+  }
+
+  return rows
+}
+
 async function getDashboardData(userId: string): Promise<DashboardData> {
   const supabase = await createClient()
 
@@ -133,7 +235,7 @@ async function getDashboardData(userId: string): Promise<DashboardData> {
 
     supabase
       .from('check_ins')
-      .select('created_at')
+      .select('type, mood, created_at')
       .eq('user_id', userId)
       .gte('created_at', weekStartIso)
       .lte('created_at', nowIso),
@@ -171,14 +273,17 @@ async function getDashboardData(userId: string): Promise<DashboardData> {
   }
 
   const streakData = getStreakFromHistory(historyResult.data ?? [])
+  const weeklyItems = weeklyResult.data ?? []
 
   return {
     latestMorning: toReset(morningResult.data),
     latestNight: toReset(nightResult.data),
     totalResets: countResult.count ?? 0,
-    weeklyCompletedDays: countDistinctDays(weeklyResult.data ?? []),
+    weeklyCompletedDays: countDistinctDays(weeklyItems),
     streakDays: streakData.streakDays,
     streakHasToday: streakData.streakHasToday,
+    weeklyInsightSummary: getWeeklyInsightSummary(weeklyItems),
+    weeklyInsightRows: getWeeklyInsightRows(weeklyItems),
   }
 }
 
@@ -300,6 +405,27 @@ export default async function Dashboard() {
               </p>
             </div>
           </section>
+
+        <section className="mt-6 rounded-[32px] quiet-panel p-6 backdrop-blur">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.18em] quiet-text-secondary">Weekly insights</p>
+              <h2 className="mt-2 text-xl font-semibold quiet-text-primary">A calm weekly view</h2>
+            </div>
+            <p className="max-w-2xl text-sm leading-6 quiet-text-secondary">
+              {dashboardData.weeklyInsightSummary}
+            </p>
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            {dashboardData.weeklyInsightRows.map((row) => (
+              <div key={row.label} className="rounded-[24px] border border-white/10 bg-white/5 p-4">
+                <p className="text-[11px] uppercase tracking-[0.18em] quiet-text-secondary">{row.label}</p>
+                <p className="mt-2 text-sm font-semibold quiet-text-primary">{row.value}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
         <section className="mt-6 rounded-[32px] quiet-panel p-6 backdrop-blur">
           <p className="mb-4 text-[10px] font-medium uppercase tracking-[0.18em] quiet-text-secondary">
