@@ -4,11 +4,103 @@ import { createClient } from '@/lib/supabase/server'
 import { Logo } from '@/components/Logo'
 import { LogoutButton } from '@/components/LogoutButton'
 
+type LatestReset = {
+  id: string
+  type: 'morning' | 'night'
+  mood: string
+  created_at: string
+  summary: string | null
+  main_focus: string | null
+  let_go_tonight: string | null
+  closure_suggestion: string | null
+}
+
+type DashboardData = {
+  latestMorning: LatestReset | null
+  latestNight: LatestReset | null
+  totalResets: number
+}
+
+async function getDashboardData(userId: string): Promise<DashboardData> {
+  const supabase = await createClient()
+
+  const selectFields = `
+    id,
+    type,
+    mood,
+    created_at,
+    ai_resets (
+      summary,
+      main_focus,
+      let_go_tonight,
+      closure_suggestion
+    )
+  `
+
+  const [morningResult, nightResult, countResult] = await Promise.all([
+    supabase
+      .from('check_ins')
+      .select(selectFields)
+      .eq('user_id', userId)
+      .eq('type', 'morning')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+
+    supabase
+      .from('check_ins')
+      .select(selectFields)
+      .eq('user_id', userId)
+      .eq('type', 'night')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+
+    supabase
+      .from('check_ins')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId),
+  ])
+
+  function toReset(data: {
+    id: string
+    type: string
+    mood: string
+    created_at: string
+    ai_resets: Array<{
+      summary: string | null
+      main_focus: string | null
+      let_go_tonight: string | null
+      closure_suggestion: string | null
+    }>
+  } | null): LatestReset | null {
+    if (!data) return null
+    return {
+      id: data.id,
+      type: data.type as 'morning' | 'night',
+      mood: data.mood,
+      created_at: data.created_at,
+      summary: data.ai_resets?.[0]?.summary ?? null,
+      main_focus: data.ai_resets?.[0]?.main_focus ?? null,
+      let_go_tonight: data.ai_resets?.[0]?.let_go_tonight ?? null,
+      closure_suggestion: data.ai_resets?.[0]?.closure_suggestion ?? null,
+    }
+  }
+
+  return {
+    latestMorning: toReset(morningResult.data),
+    latestNight: toReset(nightResult.data),
+    totalResets: countResult.count ?? 0,
+  }
+}
+
 export default async function Dashboard() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) redirect('/login')
+
+  const dashboardData = await getDashboardData(user.id)
 
   return (
     <div className="min-h-screen quiet-app-shell">
@@ -26,28 +118,28 @@ export default async function Dashboard() {
         </header>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
-          <ResetCard type="morning" />
-          <ResetCard type="night" />
+          <ResetCard type="morning" reset={dashboardData.latestMorning} />
+          <ResetCard type="night" reset={dashboardData.latestNight} />
         </div>
 
         <section className="mt-6 rounded-[32px] quiet-panel p-5 backdrop-blur sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex items-end gap-3">
-              <span className="text-5xl font-semibold quiet-text-primary">0</span>
-              <span className="text-sm uppercase tracking-[0.3em] quiet-text-secondary">day streak</span>
+              <span className="text-5xl font-semibold quiet-text-primary">{dashboardData.totalResets}</span>
+              <span className="text-sm uppercase tracking-[0.3em] quiet-text-secondary">total resets</span>
             </div>
             <div className="text-right">
-              <p className="text-xs uppercase tracking-[0.22em] quiet-text-secondary">0 of 7 days</p>
+              <p className="text-xs uppercase tracking-[0.22em] quiet-text-secondary">Keep going</p>
             </div>
           </div>
 
           <div className="mt-4 rounded-[24px] border border-white/10 bg-white/5 p-4">
             <p className="text-[10px] uppercase tracking-[0.18em] quiet-text-secondary">this week</p>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
-              <div className="h-full w-0 rounded-full bg-[var(--quiet-primary)]" />
+              <div className="h-full w-full rounded-full bg-[var(--quiet-primary)]" />
             </div>
             <p className="mt-3 text-sm leading-6 quiet-text-secondary">
-              Keep the weekly streak visible with a subtle, calm progress indicator.
+              You're building a consistent routine. Keep it up!
             </p>
           </div>
         </section>
@@ -79,10 +171,47 @@ export default async function Dashboard() {
   )
 }
 
-function ResetCard({ type }: { type: 'morning' | 'night' }) {
+function ResetCard({ type, reset }: { type: 'morning' | 'night'; reset: LatestReset | null }) {
   const isMorning = type === 'morning'
   const label = isMorning ? 'Morning Reset' : 'Night Reset'
   const href = isMorning ? '/reset/morning' : '/reset/night'
+
+  if (reset) {
+    const date = new Date(reset.created_at).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    })
+
+    return (
+      <section className="rounded-[32px] quiet-panel p-6 backdrop-blur">
+        <div className="mb-4 flex items-center gap-3">
+          <span className={`inline-flex items-center rounded-full bg-white/5 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] ${
+            isMorning ? 'text-green-400' : 'text-blue-400'
+          }`}>
+            {label}
+          </span>
+          <span className="text-xs quiet-text-secondary">{date}</span>
+        </div>
+        <p className="text-base font-semibold quiet-text-primary mb-2">
+          Latest {isMorning ? 'Morning' : 'Night'} Reset
+        </p>
+        <p className="text-sm quiet-text-secondary mb-4">
+          Mood: {reset.mood}
+        </p>
+        {reset.summary && (
+          <p className="text-sm quiet-text-secondary line-clamp-2">
+            {reset.summary}
+          </p>
+        )}
+        <Link
+          href={href}
+          className="mt-5 inline-flex items-center justify-center rounded-full quiet-primary-cta px-4 py-2 text-sm font-semibold transition"
+        >
+          Start New {isMorning ? 'Morning' : 'Night'} Reset
+        </Link>
+      </section>
+    )
+  }
 
   return (
     <section className="rounded-[32px] quiet-panel p-6 backdrop-blur">
