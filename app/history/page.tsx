@@ -156,7 +156,9 @@ export default async function HistoryPage({
         ) : (
           <div className="space-y-6">
             {filteredHistory.map((item) => (
-              <HistoryCard key={item.check_in_id} item={item} />
+              <Link key={item.check_in_id} href={`/history/${item.check_in_id}`} className="block">
+                <HistoryCard item={item} />
+              </Link>
             ))}
           </div>
         )}
