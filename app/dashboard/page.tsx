@@ -431,7 +431,7 @@ export default async function Dashboard() {
           <p className="mb-4 text-[10px] font-medium uppercase tracking-[0.18em] quiet-text-secondary">
             Quick actions
           </p>
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <ActionCard
               href="/reset/morning"
               label="Morning Reset"
@@ -441,6 +441,11 @@ export default async function Dashboard() {
               href="/reset/night"
               label="Night Reset"
               description="Wind down with a gentle night reset."
+            />
+            <ActionCard
+              href="/reminders"
+              label="Reminders"
+              description="Set optional morning and night check-in times."
             />
             <ActionCard
               href="/history"
