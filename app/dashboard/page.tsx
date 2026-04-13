@@ -19,6 +19,27 @@ type DashboardData = {
   latestMorning: LatestReset | null
   latestNight: LatestReset | null
   totalResets: number
+  weeklyCompletedDays: number
+}
+
+function getWeekStartUtc(date: Date) {
+  const utc = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
+  const dayOfWeek = utc.getUTCDay()
+  utc.setUTCDate(utc.getUTCDate() - dayOfWeek)
+  return utc
+}
+
+function countDistinctDays(items: Array<{ created_at?: string | null }>) {
+  const uniqueDays = new Set<string>()
+
+  for (const item of items ?? []) {
+    if (!item?.created_at) continue
+
+    const dayKey = new Date(item.created_at).toISOString().slice(0, 10)
+    uniqueDays.add(dayKey)
+  }
+
+  return uniqueDays.size
 }
 
 async function getDashboardData(userId: string): Promise<DashboardData> {
@@ -37,7 +58,12 @@ async function getDashboardData(userId: string): Promise<DashboardData> {
     )
   `
 
-  const [morningResult, nightResult, countResult] = await Promise.all([
+  const now = new Date()
+  const weekStart = getWeekStartUtc(now)
+  const nowIso = now.toISOString()
+  const weekStartIso = weekStart.toISOString()
+
+  const [morningResult, nightResult, countResult, weeklyResult] = await Promise.all([
     supabase
       .from('check_ins')
       .select(selectFields)
@@ -60,6 +86,13 @@ async function getDashboardData(userId: string): Promise<DashboardData> {
       .from('check_ins')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId),
+
+    supabase
+      .from('check_ins')
+      .select('created_at')
+      .eq('user_id', userId)
+      .gte('created_at', weekStartIso)
+      .lte('created_at', nowIso),
   ])
 
   function toReset(data: {
@@ -91,7 +124,24 @@ async function getDashboardData(userId: string): Promise<DashboardData> {
     latestMorning: toReset(morningResult.data),
     latestNight: toReset(nightResult.data),
     totalResets: countResult.count ?? 0,
+    weeklyCompletedDays: countDistinctDays(weeklyResult.data ?? []),
   }
+}
+
+function getWeeklyProgressText(completedDays: number) {
+  if (completedDays === 0) {
+    return 'Start your streak today.'
+  }
+
+  if (completedDays <= 2) {
+    return "You're building consistency."
+  }
+
+  if (completedDays <= 5) {
+    return 'Strong rhythm this week.'
+  }
+
+  return "You're showing up for yourself."
 }
 
 export default async function Dashboard() {
@@ -136,10 +186,16 @@ export default async function Dashboard() {
           <div className="mt-4 rounded-[24px] border border-white/10 bg-white/5 p-4">
             <p className="text-[10px] uppercase tracking-[0.18em] quiet-text-secondary">this week</p>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
-              <div className="h-full w-full rounded-full bg-[var(--quiet-primary)]" />
+              <div
+                className="h-full rounded-full bg-[var(--quiet-primary)]"
+                style={{ width: `${Math.min(Math.max(dashboardData.weeklyCompletedDays / 7, 0), 1) * 100}%` }}
+              />
             </div>
-            <p className="mt-3 text-sm leading-6 quiet-text-secondary">
-              You're building a consistent routine. Keep it up!
+            <p className="mt-3 text-sm font-semibold quiet-text-primary">
+              {dashboardData.weeklyCompletedDays} of 7 days
+            </p>
+            <p className="mt-2 text-sm leading-6 quiet-text-secondary">
+              {getWeeklyProgressText(dashboardData.weeklyCompletedDays)}
             </p>
           </div>
         </section>
